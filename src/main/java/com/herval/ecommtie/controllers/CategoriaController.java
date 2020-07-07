@@ -6,6 +6,9 @@ import com.herval.ecommtie.exceptions.NomeException;
 import com.herval.ecommtie.model.entity.Categoria;
 import com.herval.ecommtie.services.CategoriaService;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/categorias")
@@ -59,6 +64,17 @@ public class CategoriaController {
             categoria = service.update(categoria);
             return mapper.map(categoria, CategoriaDTO.class);
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping
+    public Page<CategoriaDTO> find(CategoriaDTO dto, Pageable pageRequest) {
+        Categoria filter = mapper.map(dto, Categoria.class);
+        Page<Categoria> result = service.find(filter, pageRequest);
+        List<CategoriaDTO> list = result.getContent()
+                .stream()
+                .map(entity -> mapper.map(entity, CategoriaDTO.class))
+                .collect(Collectors.toList());
+        return new PageImpl<CategoriaDTO>(list, pageRequest, result.getTotalElements());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
