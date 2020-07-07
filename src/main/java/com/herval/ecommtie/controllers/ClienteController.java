@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,10 @@ public class ClienteController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ClienteDTO create(@RequestBody @Valid ClienteDTO dto) {
-        Cliente entity = mapper.map(dto, Cliente.class);
+        Cliente entity = Cliente.builder()
+                    .nome(dto.getNome())
+                    .cpf(dto.getCpf())
+                    .dataCadastro(LocalDate.now()).build();
 
         entity = service.save(entity);
 

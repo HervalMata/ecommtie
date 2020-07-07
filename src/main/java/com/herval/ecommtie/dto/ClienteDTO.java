@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Data
@@ -20,7 +19,5 @@ public class ClienteDTO {
     private String nome;
     @NotEmpty
     private String cpf;
-    //@JsonFormat(pattern = "dd/MM/yyyy")
-    @NotNull
-    private LocalDate dataCadastro;
+
 }

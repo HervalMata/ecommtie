@@ -60,6 +60,7 @@ public class ClienteControllerTest {
                         .post(CLIENTE_API)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
                         .content(json);
 
         mvc
@@ -67,8 +68,7 @@ public class ClienteControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").isNotEmpty())
                 .andExpect(jsonPath("nome").value(dto.getNome()))
-                .andExpect(jsonPath("cpf").value(dto.getCpf()))
-                .andExpect(jsonPath("dataCadastro").value(dto.getDataCadastro()));
+                .andExpect(jsonPath("cpf").value(dto.getCpf()));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class ClienteControllerTest {
         mvc
                 .perform(request)
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors", Matchers.hasSize(3)));
+                .andExpect(jsonPath("errors", Matchers.hasSize(2)));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class ClienteControllerTest {
                 .id(id)
                 .nome(createNewCliente().getNome())
                 .cpf(createNewCliente().getCpf())
-                .dataCadastro(createNewCliente().getDataCadastro())
+                .dataCadastro(LocalDate.now())
                 .build();
         BDDMockito.given(service.getById(id)).willReturn(Optional.of(cliente));
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
@@ -174,14 +174,14 @@ public class ClienteControllerTest {
                 .id(id)
                 .nome("Cliente2")
                 .cpf("11122233344")
-                .dataCadastro(createNewCliente().getDataCadastro())
+                .dataCadastro(LocalDate.now())
                 .build();
         BDDMockito.given(service.getById(id)).willReturn(Optional.of(updatingCliente));
         Cliente updatedCliente = Cliente.builder()
                 .id(id)
                 .nome("Cliente1")
                 .cpf("11122233344")
-                .dataCadastro(createNewCliente().getDataCadastro())
+                .dataCadastro(LocalDate.now())
                 .build();
         BDDMockito.given(service.update(updatingCliente)).willReturn(updatedCliente);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
@@ -220,7 +220,7 @@ public class ClienteControllerTest {
                 .id(id)
                 .nome(createNewCliente().getNome())
                 .cpf(createNewCliente().getCpf())
-                .dataCadastro(createNewCliente().getDataCadastro())
+                .dataCadastro(LocalDate.now())
                 .build();
         BDDMockito.given(service.find(Mockito.any(Cliente.class), Mockito.any(Pageable.class)))
                 .willReturn(new PageImpl<Cliente>(Arrays.asList(cliente), PageRequest.of(0, 100), 1));
@@ -238,6 +238,6 @@ public class ClienteControllerTest {
     }
 
     private ClienteDTO createNewCliente() {
-        return ClienteDTO.builder().nome("Cliente1").cpf("11122233344").dataCadastro(LocalDate.now()).build();
+        return ClienteDTO.builder().nome("Cliente1").cpf("11122233344").build();
     }
 }
