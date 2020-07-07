@@ -80,7 +80,7 @@ public class CategoriaControllerTest {
 
     @Test
     @DisplayName("Deve lançar erro ao tentar cadastrar uma categoria com nome já utilizado")
-    public void createClienteWithDuplicatedNome() throws Exception {
+    public void createCategoriaWithDuplicatedNome() throws Exception {
         CategoriaDTO dto = createNewCategoria();
         String json = new ObjectMapper().writeValueAsString(dto);
         String mensagemErro = "Nome já cadastrado";
@@ -118,10 +118,34 @@ public class CategoriaControllerTest {
 
     @Test
     @DisplayName("Deve retornar not found quando a categoria procurada não existe!.")
-    public void clienteNotFoundTest() throws Exception {
+    public void categoriaNotFoundTest() throws Exception {
         BDDMockito.given(service.getById(Mockito.anyLong())).willReturn(Optional.empty());
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(CATEGORIA_API.concat("/" + 1))
+                .accept(MediaType.APPLICATION_JSON);
+        mvc
+                .perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Deve remover uma categoria.")
+    public void deleteCategoriaTest() throws Exception {
+        BDDMockito.given(service.getById(Mockito.anyLong())).willReturn(Optional.of(Categoria.builder().id(1L).build()));
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .delete(CATEGORIA_API.concat("/" + 1))
+                .accept(MediaType.APPLICATION_JSON);
+        mvc
+                .perform(request)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Deve retornar not found quando não encontrar a categoria para remover!.")
+    public void deleteCategoriaNotFoundTest() throws Exception {
+        BDDMockito.given(service.getById(Mockito.anyLong())).willReturn(Optional.empty());
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .delete(CATEGORIA_API.concat("/" + 1))
                 .accept(MediaType.APPLICATION_JSON);
         mvc
                 .perform(request)
