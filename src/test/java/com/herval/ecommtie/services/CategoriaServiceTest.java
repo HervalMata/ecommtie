@@ -1,7 +1,9 @@
 package com.herval.ecommtie.services;
 
+import com.herval.ecommtie.exceptions.NomeException;
 import com.herval.ecommtie.model.entity.Categoria;
 import com.herval.ecommtie.repository.CategoriaRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +12,8 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,6 +41,40 @@ public class CategoriaServiceTest {
         Categoria savedCategoria = service.save(categoria);
         assertThat(savedCategoria.getId()).isNotNull();
         assertThat(savedCategoria.getNome()).isEqualTo("Categoria2");
+    }
+
+    @Test
+    @DisplayName("Deve lançar erro ao tentar cadastrar uma categoria com nome já utilizado")
+    public void createCategoriaWithDuplicatedNome() {
+        Categoria categoria = createValidCategoria();
+        Mockito.when(repository.existsByNome(Mockito.anyString())).thenReturn(true);
+        Throwable exception = Assertions.catchThrowable(() -> service.save(categoria));
+        assertThat(exception)
+                .isInstanceOf(NomeException.class)
+                .hasMessage("Nome já cadastrado");
+        Mockito.verify(repository, Mockito.never()).save(categoria);
+    }
+
+    @Test
+    @DisplayName("Deve obter uma cliente por ID")
+    public void getByIdCategoriaTest() {
+        Long id = 1L;
+        Categoria categoria = createValidCategoria();
+        categoria.setId(id);
+        Mockito.when(repository.findById(id)).thenReturn(Optional.of(categoria));
+        Optional<Categoria> foundCategoria = service.getById(id);
+        assertThat(foundCategoria.isPresent()).isTrue();
+        assertThat(foundCategoria.get().getId()).isEqualTo(id);
+        assertThat(foundCategoria.get().getNome()).isEqualTo(categoria.getNome());
+    }
+
+    @Test
+    @DisplayName("Deve retornar em branco ao procurar uma categoria que não existe")
+    public void notFoundByIdCategoriaTest() {
+        Long id = 1L;
+        Mockito.when(repository.findById(id)).thenReturn(Optional.empty());
+        Optional<Categoria> foundCategoria = service.getById(id);
+        assertThat(foundCategoria.isPresent()).isFalse();
     }
 
     private Categoria createValidCategoria() {
