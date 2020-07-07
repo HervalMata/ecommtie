@@ -31,7 +31,10 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public void delete(Categoria categoria) {
-
+        if (categoria == null || categoria.getId() == null) {
+            throw new IllegalArgumentException("Categoria não pode ser nula");
+        }
+        this.repository.delete(categoria);
     }
 
     @Override

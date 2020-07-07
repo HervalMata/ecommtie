@@ -77,6 +77,22 @@ public class CategoriaServiceTest {
         assertThat(foundCategoria.isPresent()).isFalse();
     }
 
+    @Test
+    @DisplayName("Deve remover uma categoria")
+    public void deleteCategoriaTest() {
+        Categoria categoria = Categoria.builder().id(1L).build();
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> service.delete(categoria));
+        Mockito.verify(repository, Mockito.times(1)).delete(categoria);
+    }
+
+    @Test
+    @DisplayName("Deve retornar erro ao tentar remover uma categoria inexistente")
+    public void deleteInexistentCategoriaTest() {
+        Categoria categoria = new Categoria();
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> service.delete(categoria));
+        Mockito.verify(repository, Mockito.never()).delete(categoria);
+    }
+
     private Categoria createValidCategoria() {
         return Categoria.builder().nome("Categoria2").build();
     }
