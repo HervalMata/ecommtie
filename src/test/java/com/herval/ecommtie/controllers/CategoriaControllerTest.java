@@ -152,6 +152,48 @@ public class CategoriaControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("Deve atualizar uma categoria.")
+    public void updateCategoriaTest() throws Exception {
+        Long id = 1L;
+        String json = new ObjectMapper().writeValueAsString(createNewCategoria());
+        Categoria updatingCategoria = Categoria.builder()
+                .id(id)
+                .nome("Categoria2")
+                .build();
+        BDDMockito.given(service.getById(id)).willReturn(Optional.of(updatingCategoria));
+        Categoria updatedCategoria = Categoria.builder()
+                .id(id)
+                .nome("Categoria1")
+                .build();
+        BDDMockito.given(service.update(updatingCategoria)).willReturn(updatedCategoria);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(CATEGORIA_API.concat("/" + 1))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+        mvc
+                .perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value(id))
+                .andExpect(jsonPath("nome").value(createNewCategoria().getNome()));
+    }
+
+    @Test
+    @DisplayName("Deve retornar 404 ao tentar atualizar uma categoria inexistente.")
+    public void updateCategoriaNotFoundTest() throws Exception {
+        String json = new ObjectMapper().writeValueAsString(createNewCategoria());
+        BDDMockito.given(service.getById(Mockito.anyLong())).willReturn(Optional.empty());
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(CATEGORIA_API.concat("/" + 1))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+        mvc
+                .perform(request)
+                .andExpect(status().isNotFound());
+    }
+
     private CategoriaDTO createNewCategoria() {
         return CategoriaDTO.builder().nome("Categoria1").build();
     }

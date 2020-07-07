@@ -12,4 +12,6 @@ public interface CategoriaService {
     Optional<Categoria> getById(Long id);
 
     void delete(Categoria categoria);
+
+    Categoria update(Categoria updatingCategoria);
 }

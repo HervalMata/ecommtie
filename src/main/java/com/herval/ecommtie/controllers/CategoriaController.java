@@ -52,6 +52,15 @@ public class CategoriaController {
         service.delete(categoria);
     }
 
+    @PutMapping("{id}")
+    public CategoriaDTO update(@PathVariable Long id, CategoriaDTO dto) {
+        return service.getById(id).map( categoria -> {
+            categoria.setNome(dto.getNome());
+            categoria = service.update(categoria);
+            return mapper.map(categoria, CategoriaDTO.class);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiErrors handleValidationException(MethodArgumentNotValidException ex) {
