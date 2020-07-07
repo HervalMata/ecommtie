@@ -15,7 +15,7 @@ public interface CategoriaService {
 
     void delete(Categoria categoria);
 
-    Categoria update(Categoria updatingCategoria);
+    Categoria update(Categoria categoria);
 
     Page<Categoria> find(Categoria any, Pageable any1);
 }
