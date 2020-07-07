@@ -19,6 +19,10 @@ public class ApiErrors {
         this.errors = Arrays.asList(ex.getMessage());
     }
 
+    public ApiErrors(NomeException ex) {
+        this.errors = Arrays.asList(ex.getMessage());
+    }
+
     public List<String> getErrors() {
         return errors;
     }
