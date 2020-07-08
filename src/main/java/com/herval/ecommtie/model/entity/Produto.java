@@ -24,8 +24,8 @@ public class Produto {
     private String material;
     private int estoque;
     private double preco;
-    private boolean novidade;
-    private boolean ativo;
+    private boolean novidade = true;
+    private boolean ativo = true;
     @ManyToOne
     private Categoria categoria;
 }

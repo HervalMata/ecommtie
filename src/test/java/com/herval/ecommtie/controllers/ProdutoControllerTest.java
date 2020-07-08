@@ -126,6 +126,81 @@ public class ProdutoControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("Deve remover um produto.")
+    public void deleteProdutoTest() throws Exception {
+        BDDMockito.given(produtoService.getById(Mockito.anyLong())).willReturn(Optional.of(Produto.builder().id(1L).build()));
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .delete(PRODUTO_API.concat("/" + 1))
+                .accept(MediaType.APPLICATION_JSON);
+        mvc
+                .perform(request)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Deve retornar not found quando não encontrar o produto para remover!.")
+    public void deleteProdutoNotFoundTest() throws Exception {
+        BDDMockito.given(produtoService.getById(Mockito.anyLong())).willReturn(Optional.empty());
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .delete(PRODUTO_API.concat("/" + 1))
+                .accept(MediaType.APPLICATION_JSON);
+        mvc
+                .perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Deve atualizar um produto.")
+    public void updateProdutoTest() throws Exception {
+        Long id = 1L;
+        String json = new ObjectMapper().writeValueAsString(createProdutoNovoTest());
+        Produto updatingProduto = Produto.builder()
+                .id(id)
+                .nome("Produto2")
+                .cor("Azul")
+                .material("Lonita")
+                .estoque(1)
+                .preco(25.00)
+                .build();
+        BDDMockito.given(produtoService.getById(id)).willReturn(Optional.of(updatingProduto));
+        Produto updatedProduto = Produto.builder()
+                .id(id)
+                .nome("Produto1")
+                .cor("Rosa")
+                .material("Chita")
+                .preco(2)
+                .preco(30.00)
+                .build();
+        BDDMockito.given(produtoService.update(updatingProduto)).willReturn(updatedProduto);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(PRODUTO_API.concat("/" + 1))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+        mvc
+                .perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value(id))
+                .andExpect(jsonPath("nome").value(updatedProduto.getNome()))
+                .andExpect(jsonPath("cor").value(updatedProduto.getCor()));
+    }
+
+    @Test
+    @DisplayName("Deve retornar 404 ao tentar atualizar um produto inexistente.")
+    public void updateClienteNotFoundTest() throws Exception {
+        String json = new ObjectMapper().writeValueAsString(createProdutoNovoTest());
+        BDDMockito.given(produtoService.getById(Mockito.anyLong())).willReturn(Optional.empty());
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(PRODUTO_API.concat("/" + 1))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+        mvc
+                .perform(request)
+                .andExpect(status().isNotFound());
+    }
+
     private ProdutoDTO createProdutoNovoTest() {
         Long id = 1L;
         return ProdutoDTO.builder().nome("Produto1").cor("Azul").material("Lonita").estoque(1).preco(25.00).categoria(Categoria.builder().id(id).build()).build();

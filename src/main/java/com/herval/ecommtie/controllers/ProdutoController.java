@@ -49,4 +49,25 @@ public class ProdutoController {
                 .map(produto -> mapper.map(produto, ProdutoDTO.class))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
+
+    @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        Produto produto = produtoService.getById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        produtoService.delete(produto);
+    }
+
+    @PutMapping("{id}")
+    public ProdutoDTO update(@PathVariable Long id, ProdutoDTO dto) {
+        return produtoService.getById(id).map( produto -> {
+            produto.setNome(dto.getNome());
+            produto.setCor(dto.getCor());
+            produto.setMaterial(dto.getMaterial());
+            produto.setEstoque(dto.getEstoque());
+            produto.setPreco(dto.getPreco());
+            produto = produtoService.update(produto);
+            return mapper.map(produto, ProdutoDTO.class);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
 }
