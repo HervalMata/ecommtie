@@ -41,4 +41,12 @@ public class ProdutoController {
         produto = produtoService.save(produto);
         return mapper.map(produto, ProdutoDTO.class);
     }
+
+    @GetMapping("{id}")
+    public ProdutoDTO get(@PathVariable Long id) {
+        return produtoService
+                .getById(id)
+                .map(produto -> mapper.map(produto, ProdutoDTO.class))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
 }

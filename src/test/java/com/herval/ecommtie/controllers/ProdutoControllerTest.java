@@ -93,6 +93,39 @@ public class ProdutoControllerTest {
                 .andExpect(jsonPath("errors[0]").value("Categoria não pode ser nula."));
     }
 
+    @Test
+    @DisplayName("Deve obter as informações de um produto!.")
+    public void getProdutoDetailsTest() throws Exception {
+        Long id = 1L;
+        Produto produto = Produto.builder()
+                .id(id)
+                .nome(createProdutoNovoTest().getNome())
+                .cor(createProdutoNovoTest().getCor())
+                .build();
+        BDDMockito.given(produtoService.getById(id)).willReturn(Optional.of(produto));
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get(PRODUTO_API.concat("/" + id))
+                .accept(MediaType.APPLICATION_JSON);
+        mvc
+                .perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value(id))
+                .andExpect(jsonPath("nome").value(createProdutoNovoTest().getNome()))
+                .andExpect(jsonPath("cor").value(createProdutoNovoTest().getCor()));
+    }
+
+    @Test
+    @DisplayName("Deve retornar not found quando o produto procurado não existe!.")
+    public void produtoNotFoundTest() throws Exception {
+        BDDMockito.given(produtoService.getById(Mockito.anyLong())).willReturn(Optional.empty());
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get(PRODUTO_API.concat("/" + 1))
+                .accept(MediaType.APPLICATION_JSON);
+        mvc
+                .perform(request)
+                .andExpect(status().isNotFound());
+    }
+
     private ProdutoDTO createProdutoNovoTest() {
         Long id = 1L;
         return ProdutoDTO.builder().nome("Produto1").cor("Azul").material("Lonita").estoque(1).preco(25.00).categoria(Categoria.builder().id(id).build()).build();
