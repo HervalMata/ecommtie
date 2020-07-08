@@ -37,7 +37,7 @@ public class CategoriaRepositoryTest {
 
     @Test
     @DisplayName("Deve retornar falso quando não existir uma categoria na base com o nome informado")
-    public void returnFalseWhenCpfNotExists() {
+    public void returnFalseWhenNomeNotExists() {
         String nome = "Categoria2";
         boolean exists = repository.existsByNome(nome);
         assertThat(exists).isFalse();

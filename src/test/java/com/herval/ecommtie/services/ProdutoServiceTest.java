@@ -37,7 +37,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve salvar uma produto")
+    @DisplayName("Deve salvar um produto")
     public void saveProdutoTest() {
 
         Produto produto = createValidProduto();
@@ -50,7 +50,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar erro ao tentar cadastrar uma produto com nome já utilizado")
+    @DisplayName("Deve lançar erro ao tentar cadastrar um produto com nome já utilizado")
     public void createProdutoWithDuplicatedNome() {
         Produto produto = createValidProduto();
         Mockito.when(repository.existsByNome(Mockito.anyString())).thenReturn(true);
@@ -62,7 +62,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve obter uma cliente por ID")
+    @DisplayName("Deve obter um cliente por ID")
     public void getByIdProdutoTest() {
         Long id = 1L;
         Produto produto = createValidProduto();
@@ -75,7 +75,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve retornar em branco ao procurar uma produto que não existe")
+    @DisplayName("Deve retornar em branco ao procurar um produto que não existe")
     public void notFoundByIdProdutoTest() {
         Long id = 1L;
         Mockito.when(repository.findById(id)).thenReturn(Optional.empty());
@@ -84,7 +84,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve remover uma produto")
+    @DisplayName("Deve remover um produto")
     public void deleteProdutoTest() {
         Produto produto = Produto.builder().id(1L).build();
         org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> service.delete(produto));
@@ -92,7 +92,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve retornar erro ao tentar remover uma produto inexistente")
+    @DisplayName("Deve retornar erro ao tentar remover um produto inexistente")
     public void deleteInexistentProdutoTest() {
         Produto produto = new Produto();
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> service.delete(produto));
@@ -100,7 +100,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve atualizar uma produto")
+    @DisplayName("Deve atualizar um produto")
     public void updateProdutoTest() {
         Long id = 1L;
         Produto updatingProduto = Produto.builder().id(1L).build();
@@ -113,7 +113,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve retornar erro ao tentar atualizar uma produto inexistente")
+    @DisplayName("Deve retornar erro ao tentar atualizar um produto inexistente")
     public void updateInexistentProdutoTest() {
         Produto produto = new Produto();
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> service.update(produto));
@@ -121,7 +121,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve filtrar uma produto pelo nome")
+    @DisplayName("Deve filtrar um produto pelo nome")
     public void findProdutoTest() {
         Produto produto = createValidProduto();
         PageRequest pageRequest = PageRequest.of(0, 10);
