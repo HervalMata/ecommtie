@@ -81,17 +81,4 @@ public class ClienteController {
                 .collect(Collectors.toList());
         return new PageImpl<ClienteDTO>(list, pageRequest, result.getTotalElements());
     }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiErrors handleValidationException(MethodArgumentNotValidException ex) {
-        BindingResult bindingResult = ex.getBindingResult();
-        return new ApiErrors(bindingResult);
-    }
-
-    @ExceptionHandler(CpfException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiErrors handleCpfException(CpfException ex) {
-        return new ApiErrors(ex);
-    }
 }

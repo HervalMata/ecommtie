@@ -76,17 +76,4 @@ public class CategoriaController {
                 .collect(Collectors.toList());
         return new PageImpl<CategoriaDTO>(list, pageRequest, result.getTotalElements());
     }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiErrors handleValidationException(MethodArgumentNotValidException ex) {
-        BindingResult bindingResult = ex.getBindingResult();
-        return new ApiErrors(bindingResult);
-    }
-
-    @ExceptionHandler(NomeException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiErrors handleNomeException(NomeException ex) {
-        return new ApiErrors(ex);
-    }
 }
