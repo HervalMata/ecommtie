@@ -2,6 +2,7 @@ package com.herval.ecommtie.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.herval.ecommtie.dto.ProdutoDTO;
+import com.herval.ecommtie.exceptions.NomeException;
 import com.herval.ecommtie.model.entity.Categoria;
 import com.herval.ecommtie.model.entity.Produto;
 import com.herval.ecommtie.services.CategoriaService;
@@ -16,6 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -23,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -91,6 +96,28 @@ public class ProdutoControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", Matchers.hasSize(1)))
                 .andExpect(jsonPath("errors[0]").value("Categoria não pode ser nula."));
+    }
+
+    @Test
+    @DisplayName("Deve lançar erro ao tentar cadastrar um produto com nome já utilizado")
+    public void createProdutoWithDuplicatedNome() throws Exception {
+        ProdutoDTO dto = createProdutoNovoTest();
+        String json = new ObjectMapper().writeValueAsString(dto);
+        Categoria categoria = Categoria.builder()
+                .id(1L).nome("Categoria1").build();
+        BDDMockito.given(categoriaService.getById(categoria.getId())).willReturn(Optional.of(categoria));
+        String mensagemErro = "Nome já cadastrado";
+        BDDMockito.given(produtoService.save(Mockito.any(Produto.class))).willThrow(new NomeException(mensagemErro));
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post(PRODUTO_API)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+        mvc
+                .perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", Matchers.hasSize(1)))
+                .andExpect(jsonPath("errors[0]").value(mensagemErro));
     }
 
     @Test
@@ -188,7 +215,7 @@ public class ProdutoControllerTest {
 
     @Test
     @DisplayName("Deve retornar 404 ao tentar atualizar um produto inexistente.")
-    public void updateClienteNotFoundTest() throws Exception {
+    public void updateProdutoNotFoundTest() throws Exception {
         String json = new ObjectMapper().writeValueAsString(createProdutoNovoTest());
         BDDMockito.given(produtoService.getById(Mockito.anyLong())).willReturn(Optional.empty());
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
@@ -199,6 +226,31 @@ public class ProdutoControllerTest {
         mvc
                 .perform(request)
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Deve filtrar produtos.")
+    public void findProdutosTest() throws Exception {
+        Long id = 1L;
+        Produto produto = Produto.builder()
+                .id(id)
+                .nome(createProdutoNovoTest().getNome())
+                .cor(createProdutoNovoTest().getCor())
+                .material(createProdutoNovoTest().getMaterial())
+                .build();
+        BDDMockito.given(produtoService.find(Mockito.any(Produto.class), Mockito.any(Pageable.class)))
+                .willReturn(new PageImpl<Produto>(Arrays.asList(produto), PageRequest.of(0, 100), 1));
+        String queryString = String.format("?nome=%s&cor=%s&material=%s&page=0&size=100", produto.getNome(), produto.getCor(), produto.getMaterial());
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get(PRODUTO_API.concat(queryString))
+                .accept(MediaType.APPLICATION_JSON);
+        mvc
+                .perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("content", Matchers.hasSize(1)))
+                .andExpect(jsonPath("totalElements").value(1))
+                .andExpect(jsonPath("pageable.pageSize").value(100))
+                .andExpect(jsonPath("pageable.pageNumber").value(0));
     }
 
     private ProdutoDTO createProdutoNovoTest() {

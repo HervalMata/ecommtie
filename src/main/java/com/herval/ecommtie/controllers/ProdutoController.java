@@ -6,11 +6,16 @@ import com.herval.ecommtie.model.entity.Produto;
 import com.herval.ecommtie.services.CategoriaService;
 import com.herval.ecommtie.services.ProdutoService;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/produtos")
@@ -69,5 +74,16 @@ public class ProdutoController {
             produto = produtoService.update(produto);
             return mapper.map(produto, ProdutoDTO.class);
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping
+    public Page<ProdutoDTO> find(ProdutoDTO dto, Pageable pageRequest) {
+        Produto filter = mapper.map(dto, Produto.class);
+        Page<Produto> result = produtoService.find(filter, pageRequest);
+        List<ProdutoDTO> list = result.getContent()
+                .stream()
+                .map(entity -> mapper.map(entity, ProdutoDTO.class))
+                .collect(Collectors.toList());
+        return new PageImpl<ProdutoDTO>(list, pageRequest, result.getTotalElements());
     }
 }

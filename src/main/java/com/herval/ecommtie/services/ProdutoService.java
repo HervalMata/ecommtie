@@ -1,6 +1,8 @@
 package com.herval.ecommtie.services;
 
 import com.herval.ecommtie.model.entity.Produto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,4 +16,6 @@ public interface ProdutoService {
     void delete(Produto produto);
 
     Produto update(Produto produto);
+
+    Page<Produto> find(Produto filter, Pageable pageRequest);
 }

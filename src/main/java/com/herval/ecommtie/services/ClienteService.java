@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface ClienteService {
-    Cliente save(Cliente any);
+    Cliente save(Cliente cliente);
 
     Optional<Cliente> getById(Long id);
 

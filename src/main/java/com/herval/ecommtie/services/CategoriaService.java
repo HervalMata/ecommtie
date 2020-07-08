@@ -17,5 +17,5 @@ public interface CategoriaService {
 
     Categoria update(Categoria categoria);
 
-    Page<Categoria> find(Categoria any, Pageable any1);
+    Page<Categoria> find(Categoria filter, Pageable pageRequest);
 }
